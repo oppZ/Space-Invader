@@ -1,2 +1,2 @@
-from ennemi import Ennemi
-from joueur import Joueur
+from Entite.ennemi import Ennemi
+from Entite.joueur import Joueur
