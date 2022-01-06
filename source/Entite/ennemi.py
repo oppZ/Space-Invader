@@ -9,5 +9,5 @@ Date de création : 16/12/2021
 from entite import Entite
 
 class Ennemi(Entite):
-    def __init__(self):
-        pass
+    def __init__(self, vectPos, vies):
+        Entite.__init__(self, vectPos, vies)
