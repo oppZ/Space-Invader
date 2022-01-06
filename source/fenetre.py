@@ -8,7 +8,10 @@ TODO: Implementer les entites dans le frame.
 import tkinter as tk
 import json as js
 from tkinter import ttk
+import time
+
 import Entite
+import vecteur2
 
 
 class Fenetre:
@@ -129,11 +132,12 @@ class Jeu(Fenetre):
         self.__frame = frame
 
         self.__frameTime = 33  # ms
+        self.__entityList = []
+
+        self.__frame.focus_force()
 
         # on associe les touches du clavier aux evenements
-        self.__frame.bind("<Key>", self.__bouger, add=True)
-        #self.__frame.bind("<Motion>", self.__bouger, add=True)
-
+        self.__frame.bind("<KeyPress>", self.__changerDirection, add=True)
 
     def spawnEntite(self):
         """
@@ -141,17 +145,54 @@ class Jeu(Fenetre):
         TODO: Enlever le padding des images
         :return:
         """
-        #self.__joueur = Entite.Joueur(posX=self.__frameX/2, posY=self.__frameY - 50, vies=3)
-
+        position = vecteur2.Vect2(x=self.__frameX/2, y=self.__frameY - 50)
+        self.__joueur = Entite.Joueur(vect=position)
+        
         #Lecture du fichier json
         with open('json\stages.json') as j:
             donnees=js.load(j)
-        #print(donnees)
 
         #Affichage d'un ennemi dans le frame
         self.__ennemi=tk.PhotoImage(file="..\img\ennemi1.png")
         self.__img=tk.Label(self.__frame, image=self.__ennemi)
         self.__img.place(x=donnees["stage1"][0]["posX"], y=donnees["stage1"][0]["posY"])
 
-    def __bouger(self, event):
-        print(event)
+    def __changerDirection(self, event):
+        """
+        Permettre au joueur de changer sa direction
+        :param event:
+        """
+        if event.keysym == "Up":
+            vect = vecteur2.Vect2(x=0, y=-0.5)
+        elif event.keysym == "Down":
+            vect = vecteur2.Vect2(x=0, y=0.5)
+        elif event.keysym == "Right":
+            vect = vecteur2.Vect2(x=0.5, y=0)
+        elif event.keysym == "Left":
+            vect = vecteur2.Vect2(x=-0.5, y=0)
+
+        self.__joueur.changerDirection(vect)
+
+    def __mainloop(self):
+        """
+        Boucle du jeu principale
+        :return:
+        """
+        while True:
+            time.sleep(self.__frameTime * 0.001)
+            self.__newTick()
+
+    def __newTick(self):
+        """
+
+        :return:
+        """
+        for entity in self.__entityList:
+            distanceX = entity.getDistance().getX()
+            distanceY = entity.getDistance().getY()
+            positionX = entity.getPosition().getX()
+            positionY = entity.getPosition().getY()
+            entity.image.place(x=positionX + distanceX, y=positionY + distanceY)
+        self.__joueur.changerDirection(vect=vecteur2.Vect2())
+
+Fenetre()

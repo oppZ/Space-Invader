@@ -8,8 +8,7 @@ Date de création : 16/12/2021
 
 from entite import Entite
 
+
 class Boulet(Entite):
     def __init__(self, vectPos):
-        Entite.__init__(posX, posY, vies = 1)
-
-    
+        Entite.__init__(vectPos, vies=1)
