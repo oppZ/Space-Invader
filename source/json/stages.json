@@ -1,0 +1,24 @@
+{
+  "stage1": [
+    {
+      "posX": 10,
+      "posY": 20,
+      "type": "elite"
+    },
+    {
+      "posX": 60,
+      "posY": 20,
+      "type": "elite"
+    },
+    {
+      "posX": 10,
+      "posY": 70,
+      "type": "standard"
+    },
+    {
+      "posX": 60,
+      "posY": 70,
+      "type": "standard"
+    }
+  ]
+}

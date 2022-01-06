@@ -1,0 +1,14 @@
+{
+  "bonus": {
+    "pts": 100,
+    "tir": false
+  },
+  "elite": {
+    "pts": 20,
+    "tir": true
+  },
+  "standard": {
+    "pts": 10,
+    "tir": false
+  }
+}
