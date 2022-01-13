@@ -18,7 +18,6 @@ class Fenetre:
     """
     Classe permettant de creer les differents menu du jeu
     """
-
     def __init__(self) -> None:
         # Creation de la fenetre
         self.__f = tk.Tk()
@@ -31,14 +30,16 @@ class Fenetre:
         self.__txt_vies = tk.StringVar()
         self.__set_score()
         self.__set_vies()
-        self.__frame_time = 33  # ms
+        self.__tps_att = 33  # ms
         self.__lst_ennemis = []  # Liste contenant les ennemis
         self.__imgs = []  # Liste contenant les images des ennemis
+        self.__largeur = 400
+        self.__hauteur = 550
 
         # Creation des widgets
         self.__lab_score = tk.Label(self.__f, textvariable=self.__txt_score)
         self.__lab_vies = tk.Label(self.__f, textvariable=self.__txt_vies)
-        self.__ecran = tk.Frame(self.__f, width=400, height=550, bg="black")
+        self.__ecran = tk.Frame(self.__f, width=self.__largeur, height=self.__hauteur, bg="black")
         self.__btn_commencer = ttk.Button(self.__f, text="Commencer", command=self.__commencer)
         self.__quitter = ttk.Button(self.__f, text="Quitter", command=self.__quitte)
         self.__btn_menu_princ = ttk.Button(self.__f, text="Menu principal", command=self.__menu_princ)
@@ -48,8 +49,6 @@ class Fenetre:
         self.__menu_princ()
 
         # objet de l'instance du jeu
-        self.__ecran_x = 400
-        self.__ecran_y = 550
         self.__ecran.focus_force()
 
         # on associe les touches du clavier aux evenements
@@ -81,14 +80,13 @@ class Fenetre:
     def __menu_princ(self) -> None:
         """
         Initialisation du menu principal
+        TODO: Supprimer les entites
         :return:
         """
         # Suppression des widgets inutiles
         self.__lab_score.grid_forget()
         self.__lab_vies.grid_forget()
         self.__btn_menu_princ.grid_forget()
-        for ennemi in self.__lst_ennemis:
-            ennemi.place_forget()
 
         # Ajout des widgets utiles
         self.__btn_commencer.grid(row=0, column=0, columnspan=2)
@@ -147,7 +145,7 @@ class Fenetre:
         TODO: Enlever le padding des images
         :return:
         """
-        position = vecteur2.Vect2(x=self.__ecran_x / 2, y=self.__ecran_y - 50)
+        position = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
         self.__joueur = EntiteP.Joueur(vect_pos=position, vies=3)
 
         image_brute = tk.PhotoImage(file="../img/joueur.png")
@@ -160,27 +158,28 @@ class Fenetre:
 
         with open('json/types.json') as j:
             types = js.load(j)
-    """
-        # Affichage des ennemis
-        for ennemi in js_ennemis["stage1"]:
-            self.__imgs.append(tk.PhotoImage(file=types[ennemi["type"]]["img"]))
-            self.__lst_ennemis.append(tk.Label(self.__ecran, image=self.__imgs[-1]))
-            self.__lst_ennemis[-1].place(x=ennemi["posX"], y=ennemi["posY"])
 
+        for ennemi in js_ennemis["stage1"]:
+            pos = vecteur2.Vect2(x=ennemi["pos_x"], y=ennemi["pos_y"])
+            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"]))
         self.__deplac_ennemis()
-    """
+
     def __deplac_ennemis(self) -> None:
         """
         Deplacement des ennemis
+        TODO: Faire en sorte que les ennemis se deplacent + detection des collisions
         :return:
         """
+        for ennemi in self.__lst_ennemis:
+            dep = vecteur2.Vect2(x=10, y=0)
+            if ennemi.get_position().get_x()+dep.get_x()+40 <= self.__hauteur:
+                ennemi.changer_direction(dep)
 
-    def __changer_direction(self, event):
+    def __changer_direction(self, event) -> None:
         """
         Permettre au joueur de changer sa direction
         :param event:
         """
-        print('ee')
         if event.keysym == "Up":
             vect = vecteur2.Vect2(x=0, y=-2)
         elif event.keysym == "Down":
@@ -210,12 +209,11 @@ class Fenetre:
         :return:
         """
         for entity in [self.__joueur]:
-            distance_x = entity.get_deplacament().getX()
-            distance_y = entity.get_deplacament().getY()
-            position_x = entity.get_position().getX()
-            position_y = entity.get_position().getY()
+            distance_x = entity.get_deplacement().get_x()
+            distance_y = entity.get_deplacement().get_y()
+            position_x = entity.get_position().get_x()
+            position_y = entity.get_position().get_y()
             entity.get_image().place(x=position_x + distance_x, y=position_y + distance_y)
 
-
-        # reinitialise le vecteur directeur a 0
+        # reinitialise la direction a 0
         self.__joueur.changer_direction(vect=vecteur2.Vect2())

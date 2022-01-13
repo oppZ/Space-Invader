@@ -9,7 +9,7 @@ from source import vecteur2
 
 
 class Entite:
-    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None, image_brute = None) -> object:
+    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None ,image_brute) -> object:
         """
         Initialise l'entite de base
 
@@ -19,8 +19,8 @@ class Entite:
             vies: int
         Le nombre de vies que l'entité possède
         """
-        self.__vecteurPosition = vect
-        self.__vecteurDeplacement = vecteur2.Vect2()
+        self.__vecteur_position = vect
+        self.__vecteur_deplacement = vecteur2.Vect2()
 
         self.__vies = vies
         self.__image = image
@@ -36,13 +36,13 @@ class Entite:
             vect: Vect2
         Le vecteur direction de la classe Vect2
         """
-        self.__vecteurPosition += vect
+        self.__vecteur_position += vect
 
-    def get_deplacament(self):
-        return self.__vecteurDeplacement
+    def get_deplacement(self):
+        return self.__vecteur_deplacement
 
     def get_position(self):
-        return self.__vecteurPosition
+        return self.__vecteur_position
 
     def get_image(self):
         return self.__image

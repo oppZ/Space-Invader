@@ -7,7 +7,7 @@ Date de création : 16/12/2021
 """
 
 
-class Vect2():
+class Vect2:
     def __init__(self, x=0, y=0):
         self.__x = x
         self.__y = y
@@ -21,16 +21,16 @@ class Vect2():
     def __str__(self):
         return str(self.__x) + " " + str(self.__y)
 
-    def getX(self):
+    def get_x(self):
         return self.__x
 
-    def getY(self):
+    def get_y(self):
         return self.__y
 
-    def setX(self, x):
+    def set_x(self, x):
         if isinstance(x, int):
             self.__x = x
 
-    def setY(self, y):
+    def set_y(self, y):
         if isinstance(y, int):
             self.__y = y
