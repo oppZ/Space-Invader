@@ -10,5 +10,5 @@ from source.EntiteP.entite import Entite
 
 
 class Boulet(Entite):
-    def __init__(self, vectPos):
-        Entite.__init__(vectPos, vies=1)
+    def __init__(self, vect_pos):
+        Entite.__init__(vect_pos, vies=1)

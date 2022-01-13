@@ -2,16 +2,19 @@
   "elite": {
     "img": "../img/ennemi3.png",
     "pts": 20,
-    "tir": true
+    "tir": true,
+    "vie": 1
   },
   "special": {
     "img": "../img/ennemi2.png",
     "pts": 100,
-    "tir": false
+    "tir": false,
+    "vie": 1
   },
   "standard": {
     "img": "../img/ennemi1.png",
     "pts": 10,
-    "tir": false
+    "tir": false,
+    "vie": 3
   }
 }

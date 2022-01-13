@@ -12,8 +12,8 @@ from source.vecteur2 import Vect2
 
 
 class Joueur(Entite):
-    def __init__(self, vectPos: Vect2, vies: int) -> None:
-        Entite.__init__(self, vectPos, vies)
+    def __init__(self, vect_pos: Vect2, vies: int) -> None:
+        Entite.__init__(self, vect_pos, vies)
 
     def tirer(self):
         pass
