@@ -2,7 +2,6 @@
 Que fait ce programme: Creation de l'aspect graphique du jeu.
 Qui l'a fait: Tancrede Lici, Mateusz Wlazlowski
 Quand a-t-il realise: 16/12/2021
-
 """
 
 import tkinter as tk
@@ -41,7 +40,7 @@ class Fenetre:
         self.__lab_vies = tk.Label(self.__f, textvariable=self.__txt_vies)
         self.__ecran = tk.Frame(self.__f, width=400, height=550, bg="black")
         self.__btn_commencer = ttk.Button(self.__f, text="Commencer", command=self.__commencer)
-        self.__quitter = ttk.Button(self.__f, text="Quitter", command=self.__f.destroy)
+        self.__quitter = ttk.Button(self.__f, text="Quitter", command=self.__quitte)
         self.__btn_menu_princ = ttk.Button(self.__f, text="Menu principal", command=self.__menu_princ)
         self.__btn_rejouer = ttk.Button(self.__ecran, text="rejouer", command=self.__commencer)
 
@@ -49,12 +48,12 @@ class Fenetre:
         self.__menu_princ()
 
         # objet de l'instance du jeu
-        self.__ecran_x = self.__ecran.winfo_x()
-        self.__ecran_y = self.__ecran.winfo_y()
+        self.__ecran_x = 400
+        self.__ecran_y = 550
         self.__ecran.focus_force()
 
         # on associe les touches du clavier aux evenements
-        self.__ecran.bind("<KeyPress>", self.__changer_direction, add=True)
+        self.__f.bind("<KeyPress>", self.__changer_direction, add=True)
 
         self.__f.mainloop()
 
@@ -73,6 +72,11 @@ class Fenetre:
         self.__btn_menu_princ.grid(row=2, column=0, columnspan=2)
 
         self.__spawn_entite()
+
+        self.continuer = True
+
+        main_loop_thread = threading.Thread(target=self.__mainloop)
+        main_loop_thread.start()
 
     def __menu_princ(self) -> None:
         """
@@ -98,6 +102,11 @@ class Fenetre:
         """
         # Ajout des widgets utiles
         self.__btn_rejouer.pack(side="top")
+
+    def __quitte(self):
+        self.continuer = False
+        time.sleep(self.__frame_time * 0.001)
+        self.__f.destroy()
 
     def __score(self) -> None:
         """
@@ -135,10 +144,15 @@ class Fenetre:
     def __spawn_entite(self) -> None:
         """
         Initialisation des diverses entites
+        TODO: Enlever le padding des images
         :return:
         """
         position = vecteur2.Vect2(x=self.__ecran_x / 2, y=self.__ecran_y - 50)
-        self.__joueur = EntiteP.Joueur(vectPos=position, vies=3)
+        self.__joueur = EntiteP.Joueur(vect_pos=position, vies=3)
+
+        image_brute = tk.PhotoImage(file="../img/joueur.png")
+        image = tk.Label(self.__ecran, image=image_brute)
+        self.__joueur.set_image(image, image_brute)
 
         # Lecture du fichier json
         with open('json/stages.json') as j:
@@ -146,7 +160,7 @@ class Fenetre:
 
         with open('json/types.json') as j:
             types = js.load(j)
-
+    """
         # Affichage des ennemis
         for ennemi in js_ennemis["stage1"]:
             self.__imgs.append(tk.PhotoImage(file=types[ennemi["type"]]["img"]))
@@ -154,7 +168,7 @@ class Fenetre:
             self.__lst_ennemis[-1].place(x=ennemi["posX"], y=ennemi["posY"])
 
         self.__deplac_ennemis()
-
+    """
     def __deplac_ennemis(self) -> None:
         """
         Deplacement des ennemis
@@ -166,23 +180,27 @@ class Fenetre:
         Permettre au joueur de changer sa direction
         :param event:
         """
+        print('ee')
         if event.keysym == "Up":
-            vect = vecteur2.Vect2(x=0, y=-0.5)
+            vect = vecteur2.Vect2(x=0, y=-2)
         elif event.keysym == "Down":
-            vect = vecteur2.Vect2(x=0, y=0.5)
+            vect = vecteur2.Vect2(x=0, y=2)
         elif event.keysym == "Right":
-            vect = vecteur2.Vect2(x=0.5, y=0)
+            vect = vecteur2.Vect2(x=2, y=0)
         elif event.keysym == "Left":
-            vect = vecteur2.Vect2(x=-0.5, y=0)
+            vect = vecteur2.Vect2(x=-2, y=0)
+        else:
+            vect = self.__joueur.get_deplacament()
+        print(vect)
 
-        self.__joueur.changerDirection(vect)
+        self.__joueur.changer_direction(vect)
 
     def __mainloop(self):
         """
         Boucle du jeu principale
         :return:
         """
-        while True:
+        while self.continuer:
             time.sleep(self.__frame_time * 0.001)
             self.__new_tick()
 
@@ -191,12 +209,13 @@ class Fenetre:
 
         :return:
         """
-        for entity in self.__lst_ennemis + [self.__joueur]:
-            distance_x = entity.getDeplacament().getX()
-            distance_y = entity.getDeplacament().getY()
-            position_x = entity.getPosition().getX()
-            position_y = entity.getPosition().getY()
-            entity.__image.place(x=position_x + distance_x, y=position_y + distance_y)
+        for entity in [self.__joueur]:
+            distance_x = entity.get_deplacament().getX()
+            distance_y = entity.get_deplacament().getY()
+            position_x = entity.get_position().getX()
+            position_y = entity.get_position().getY()
+            entity.get_image().place(x=position_x + distance_x, y=position_y + distance_y)
 
-        # reinitialise la direction a 0
-        self.__joueur.changerDirection(vect=vecteur2.Vect2())
+
+        # reinitialise le vecteur directeur a 0
+        self.__joueur.changer_direction(vect=vecteur2.Vect2())

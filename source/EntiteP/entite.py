@@ -8,8 +8,8 @@ TODO: faire entité une sous classe de fenêtre
 from source import vecteur2
 
 
-class Entite():
-    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None) -> object:
+class Entite:
+    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None, image_brute = None) -> object:
         """
         Initialise l'entite de base
 
@@ -24,8 +24,9 @@ class Entite():
 
         self.__vies = vies
         self.__image = image
+        self.__image_brute = image_brute
 
-    def changerDirection(self, vect: vecteur2.Vect2):
+    def changer_direction(self, vect: vecteur2.Vect2):
         """
         Fonction qui permet de déplacer une entité sur la fenêtre.
         Change les coordonées de l'entité.
@@ -37,8 +38,15 @@ class Entite():
         """
         self.__vecteurPosition += vect
 
-    def getDeplacament(self):
+    def get_deplacament(self):
         return self.__vecteurDeplacement
 
-    def getPosition(self):
+    def get_position(self):
         return self.__vecteurPosition
+
+    def get_image(self):
+        return self.__image
+
+    def set_image(self, image, image_brute):
+        self.__image = image
+        self.__image_brute = image_brute
