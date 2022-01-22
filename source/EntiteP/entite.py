@@ -9,7 +9,7 @@ from source import vecteur2
 
 
 class Entite:
-    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None ,image_brute) -> object:
+    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None) -> None:
         """
         Initialise l'entite de base
 
@@ -24,7 +24,7 @@ class Entite:
 
         self.__vies = vies
         self.__image = image
-        self.__image_brute = image_brute
+        self.__image_brute = ""
 
     def changer_direction(self, vect: vecteur2.Vect2):
         """
@@ -50,3 +50,6 @@ class Entite:
     def set_image(self, image, image_brute):
         self.__image = image
         self.__image_brute = image_brute
+
+    def rm_img(self):
+        self.__image.destroy()
