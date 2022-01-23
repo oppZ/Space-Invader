@@ -13,7 +13,7 @@ class Ennemi(Entite):
     def __init__(self, vect_pos, vies, score):
         Entite.__init__(self, vect_pos, vies)
 
-        self.score = score
+        self.__score = 0
 
     def get_score(self):
         """
@@ -21,4 +21,4 @@ class Ennemi(Entite):
         :return:
             int
         """
-        return self.score
+        return self.__score

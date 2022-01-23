@@ -3,7 +3,7 @@ Que fait ce programme: Creation de l'aspect graphique du jeu.
 Qui l'a fait: Tancrede Lici, Mateusz Wlazlowski
 Quand a-t-il realise: 16/12/2021
 """
-
+import tkinter
 import tkinter as tk
 import json as js
 from tkinter import ttk
@@ -18,6 +18,7 @@ class Fenetre:
     """
     Classe permettant de creer les differents menu du jeu
     """
+
     def __init__(self) -> None:
         # Creation de la fenetre
         self.__f = tk.Tk()
@@ -50,6 +51,9 @@ class Fenetre:
 
         # objet de l'instance du jeu
         self.__ecran.focus_force()
+
+        # on associe les touches du clavier aux evenements
+        self.__f.bind("<KeyPress>", self.__changer_direction, add=True)
 
         self.__f.mainloop()
 
@@ -88,13 +92,16 @@ class Fenetre:
         self.__lab_score.grid_forget()
         self.__lab_vies.grid_forget()
         self.__btn_menu_princ.grid_forget()
+        for entite in self.__lst_entites:
+            entite.rm_img()
+        self.__continuer = False
 
         # Ajout des widgets utiles
         self.__btn_commencer.grid(row=0, column=0, columnspan=2)
         self.__ecran.grid(row=1, column=0, columnspan=2)
         self.__quitter.grid(row=2, column=0, columnspan=2)
 
-    def __defaite(self):
+    def __defaite(self) -> None:
         """
         Initialisation du menu defaite
         :return:
@@ -143,15 +150,14 @@ class Fenetre:
     def __spawn_entite(self) -> None:
         """
         Initialisation des diverses entites
-        TODO: Enlever le padding des images
         :return:
         """
         position = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
-        self.joueur = EntiteP.Joueur(vect_pos=position, vies=3)
+        self.__joueur = EntiteP.Joueur(vect_pos=position, vies=3)
 
         image_brute = tk.PhotoImage(file="../img/joueur.png")
         image = tk.Label(self.__ecran, image=image_brute)
-        self.joueur.set_image(image, image_brute)
+        self.__joueur.set_image(image, image_brute)
 
         # Lecture du fichier json
         with open('json/stages.json') as j:
@@ -162,7 +168,7 @@ class Fenetre:
 
         for ennemi in js_ennemis["stage1"]:
             pos = vecteur2.Vect2(x=ennemi["pos_x"], y=ennemi["pos_y"])
-            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"], score=2))
+            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"]))
         self.__deplac_ennemis()
 
     def __deplac_ennemis(self) -> None:
@@ -191,13 +197,13 @@ class Fenetre:
             vect = vecteur2.Vect2(x=-2, y=0)
         else:
             vect = self.joueur.get_deplacament()
-        print(vect)
 
         self.joueur.changer_direction(vect)
 
     def __mainloop(self):
         """
         Boucle du jeu principale
+        TODO: Regler l'erreur lorsqu'on quitte la partie
         :return:
         """
         while self.continuer:
@@ -209,6 +215,8 @@ class Fenetre:
 
         :return:
         """
+        # self.__deplac_ennemis()
+        # for entity in self.__lst_entites:
         for entity in [self.joueur]:
             distance_x = entity.get_deplacement().get_x()
             distance_y = entity.get_deplacement().get_y()
@@ -216,7 +224,6 @@ class Fenetre:
             position_y = entity.get_position().get_y()
             entity.get_image().place(x=position_x + distance_x, y=position_y + distance_y)
             entity.ajouter_deplacement()
-            print(entity.get_position())
 
         # reinitialise la direction a 0
         self.joueur.changer_direction(vect=vecteur2.Vect2())
