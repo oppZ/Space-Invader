@@ -19,11 +19,6 @@
       "pos_x": 60,
       "pos_y": 120,
       "type": "standard"
-    },
-    {
-      "pos_x": 10,
-      "pos_y": 200,
-      "type": "bloc"
     }
   ]
 }

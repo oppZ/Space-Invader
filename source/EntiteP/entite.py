@@ -5,7 +5,7 @@ Date de création : 16/12/2021
 TODO: faire entité une sous classe de fenêtre 
 """
 
-import vecteur2
+from source import vecteur2
 
 
 class Entite:
