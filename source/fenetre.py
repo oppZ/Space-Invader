@@ -22,7 +22,7 @@ class Fenetre:
     def __init__(self) -> None:
         # Creation de la fenetre
         self.__f = tk.Tk()
-        self.__f.title("Les zinzins de l'espace Schengen.exe")
+        self.__f.title("watch yo alien")
 
         # Initialisation des variables
         self.__nb_score = 0
@@ -37,6 +37,7 @@ class Fenetre:
         self.__largeur = 400
         self.__hauteur = 550
         self.__mvt_ennemis = vecteur2.Vect2(x=2, y=0)
+        self.tir_en_cours = False
 
         # Creation des widgets
         self.__lab_score = tk.Label(self.__f, textvariable=self.__txt_score)
@@ -154,8 +155,8 @@ class Fenetre:
         with open('json/types.json') as j:
             types = js.load(j)
 
-        self.__lst_entites = [None]*(len(js_ennemis["stage1"])+1)
-        i = 1
+        self.__lst_entites = [None]*(len(js_ennemis["stage1"])+2)
+        i = 2
         for ennemi in js_ennemis["stage1"]:
             pos = vecteur2.Vect2(x=ennemi["pos_x"], y=ennemi["pos_y"])
             ennemi_tmp = EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"])
@@ -163,10 +164,15 @@ class Fenetre:
             self.__lst_entites[i] = ennemi_tmp
             i += 1
 
-        pos = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
+        pos = vecteur2.Vect2(x=self.__largeur/2, y=self.__hauteur-50)
         self.__joueur = EntiteP.Joueur(vect_pos=pos, vies=3)
         self.__creation_img(self.__joueur, "../img/joueur.png")
         self.__lst_entites[0] = self.__joueur
+
+        pos = vecteur2.Vect2(x=-100, y=0)
+        self.__missile = EntiteP.Missile(vect_pos=pos)
+        self.__creation_img(self.__missile, "../img/missile.png")
+        self.__lst_entites[1] = self.__missile
 
     def __creation_img(self, objet: EntiteP, chemin: str) -> None:
         """
@@ -184,14 +190,20 @@ class Fenetre:
         Deplacement des ennemis
         :return:
         """
-        for ennemi in self.__lst_entites[1:]:
+        for ennemi in self.__lst_entites[2:]:
             x = ennemi.get_position().get_x()+self.__mvt_ennemis.get_x()
             if not (0 <= x and x+40 <= self.__largeur):
                 self.__mvt_ennemis.set_x(-self.__mvt_ennemis.get_x())
                 break
 
-        for ennemi in self.__lst_entites[1:]:
+        for ennemi in self.__lst_entites[2:]:
             ennemi.changer_direction(self.__mvt_ennemis)
+
+        if self.__lst_entites[1].get_position().get_y() >= -20:
+            self.__lst_entites[1].changer_direction(vecteur2.Vect2(x=0, y=-2))
+            self.tir_en_cours = True
+        else:
+            self.tir_en_cours = False
 
     def __appuie_touche(self, event) -> None:
         """
@@ -210,8 +222,8 @@ class Fenetre:
             elif event.keysym == "Escape":
                 self.__menu_princ()
                 vect = self.__joueur.get_deplacement()
-            elif event.keysym == "space":
-                print("espace")
+            elif event.keysym == "space" and not self.tir_en_cours:
+                self.__tirer()
                 vect = self.__joueur.get_deplacement()
             else:
                 vect = self.__joueur.get_deplacement()
@@ -221,6 +233,11 @@ class Fenetre:
                 self.__quitte()
             elif event.keysym == "Return":
                 self.__commencer()
+
+    def __tirer(self) -> None:
+        x, y = self.__joueur.get_position().get_x()+17, self.__joueur.get_position().get_y()-15
+        pos = vecteur2.Vect2(x=x, y=y)
+        self.__missile.set_position(pos)
 
     def __mainloop(self):
         """

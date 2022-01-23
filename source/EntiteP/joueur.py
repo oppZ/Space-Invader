@@ -7,7 +7,7 @@ Date de création : 16/12/2021
 """
 
 from source.EntiteP.entite import Entite
-from source.EntiteP.boulet import Boulet
+from source.EntiteP.missile import Missile
 from source.vecteur2 import Vect2
 
 

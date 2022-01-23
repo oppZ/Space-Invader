@@ -9,6 +9,6 @@ Date de création : 16/12/2021
 from source.EntiteP.entite import Entite
 
 
-class Boulet(Entite):
+class Missile(Entite):
     def __init__(self, vect_pos):
-        Entite.__init__(vect_pos, vies=1)
+        Entite.__init__(self, vect_pos, vies=1)

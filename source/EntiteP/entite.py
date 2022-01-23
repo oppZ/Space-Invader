@@ -44,6 +44,9 @@ class Entite:
     def get_position(self):
         return self.__vecteur_position
 
+    def set_position(self, pos: vecteur2.Vect2):
+        self.__vecteur_position = pos
+
     def get_image(self):
         return self.__image
 
