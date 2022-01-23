@@ -22,10 +22,10 @@ class Vect2:
         return str(self.__x) + " " + str(self.__y)
 
     def get_x(self):
-        return self.__x
+        return int(self.__x)
 
     def get_y(self):
-        return self.__y
+        return int(self.__y)
 
     def set_x(self, x):
         if isinstance(x, int):

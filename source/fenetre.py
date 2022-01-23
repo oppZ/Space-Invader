@@ -80,6 +80,8 @@ class Fenetre:
 
         self.__continuer = True
 
+        self.__ecran.focus_force()
+
         main_loop_thread = threading.Thread(target=self.__mainloop)
         main_loop_thread.start()
 
@@ -183,6 +185,7 @@ class Fenetre:
 
         pos = vecteur2.Vect2(x=-100, y=0)
         self.__missile = EntiteP.Missile(vect_pos=pos)
+        self.__missile.changer_direction(vecteur2.Vect2(x=0, y=-5))
         self.__creation_img(self.__missile, "../img/missile.png")
         self.__lst_entites[1] = self.__missile
 
@@ -205,6 +208,7 @@ class Fenetre:
         """
         Fonction permettant le deplacement des ennemis et du missile
         """
+        # Ennemis
         for ennemi in self.__lst_entites[3:]:
             x = ennemi.get_position().get_x() + self.__mvt_ennemis.get_x()
             if not (0 <= x and x + 40 <= self.__largeur):
@@ -214,6 +218,7 @@ class Fenetre:
         for ennemi in self.__lst_entites[3:]:
             ennemi.changer_direction(self.__mvt_ennemis)
 
+        # missile
         if self.__lst_entites[1].get_position().get_y() >= -16:
             self.__lst_entites[1].changer_direction(vecteur2.Vect2(x=0, y=-10))
             self.__tir_en_cours = True
@@ -233,6 +238,7 @@ class Fenetre:
         :param event:
         """
         if self.__continuer:
+            vect = self.__joueur.get_deplacement()
             if event.keysym == "Up":
                 vect = vecteur2.Vect2(x=0, y=-2)
             elif event.keysym == "Down":
@@ -243,12 +249,10 @@ class Fenetre:
                 vect = vecteur2.Vect2(x=-2, y=0)
             elif event.keysym == "Escape":
                 self.__menu_princ()
-                vect = self.__joueur.get_deplacement()
             elif event.keysym == "space" and not self.__tir_en_cours:
                 self.__tirer()
                 vect = self.__joueur.get_deplacement()
-            else:
-                vect = self.__joueur.get_deplacement()
+
             self.__joueur.changer_direction(vect)
         else:
             if event.keysym == "Escape":
@@ -260,9 +264,12 @@ class Fenetre:
         """
         Fonction permettant au joueur de tirer
         """
-        x, y = self.__joueur.get_position().get_x() + 17, self.__joueur.get_position().get_y() - 15
-        pos = vecteur2.Vect2(x=x, y=y)
-        self.__missile.set_position(pos)
+        # x, y = self.__joueur.get_position().get_x() + 17, self.__joueur.get_position().get_y() - 15
+        # pos = vecteur2.Vect2(x=x, y=y)
+        # self.__missile.set_position(pos)
+        position_relative = vecteur2.Vect2(x=17, y=-15)
+        position_missile = self.__joueur.get_position() + position_relative
+        self.__missile.set_position(position_missile)
 
     def __destruction(self, bloc) -> None:
         bloc.rm_img()
@@ -287,13 +294,14 @@ class Fenetre:
         """
         self.__deplac_ennemis()
         for entity in self.__lst_entites:
-            distance_x = entity.get_deplacement().get_x()
-            distance_y = entity.get_deplacement().get_y()
-            position_x = entity.get_position().get_x()
-            position_y = entity.get_position().get_y()
-            entity.get_image().place(x=position_x + distance_x, y=position_y + distance_y)
+            distance = entity.get_deplacement()
+            position = entity.get_position()
+            nouvelle_position = position + distance
+            entity.set_position(pos=nouvelle_position)
+            entity.get_image().place(x=nouvelle_position.get_x(), y=nouvelle_position.get_y())
 
-        # reinitialise la direction a 0
-        self.__joueur.changer_direction(vect=vecteur2.Vect2())
+            # on reinitialise le vecteur direction a (x, y) = (0, 0)
+            entity.changer_direction(vecteur2.Vect2())
+
 
         self.__i_bonus += 1

@@ -5,7 +5,7 @@ Date de création : 16/12/2021
 TODO: faire entité une sous classe de fenêtre 
 """
 
-from source import vecteur2
+import vecteur2
 
 
 class Entite:
@@ -23,7 +23,7 @@ class Entite:
         Change les coordonées de l'entité.
         TODO: déplacer vraiment, vérifier si on dépasse pas le canvas
         """
-        self.__vecteur_position += vect
+        self.__vecteur_deplacement = vect
 
     def get_deplacement(self):
         return self.__vecteur_deplacement

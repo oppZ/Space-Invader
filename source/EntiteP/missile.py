@@ -4,7 +4,7 @@ Auteurs : Mateusz Wlazlowski et Tancrède Lici
 Date de création : 16/12/2021
 """
 
-from source.EntiteP.entite import Entite
+from EntiteP.entite import Entite
 
 
 class Missile(Entite):
