@@ -9,7 +9,7 @@ from source import vecteur2
 
 
 class Entite:
-    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None ,image_brute) -> object:
+    def __init__(self, vect: vecteur2.Vect2, vies: int, image=None, image_brute=None) -> object:
         """
         Initialise l'entite de base
 
@@ -36,13 +36,16 @@ class Entite:
             vect: Vect2
         Le vecteur direction de la classe Vect2
         """
-        self.__vecteur_position += vect
+        self.__vecteur_position = vect
 
     def get_deplacement(self):
         return self.__vecteur_deplacement
 
     def get_position(self):
         return self.__vecteur_position
+
+    def ajouter_deplacement(self):
+        self.__vecteur_position += self.__vecteur_deplacement
 
     def get_image(self):
         return self.__image

@@ -51,9 +51,6 @@ class Fenetre:
         # objet de l'instance du jeu
         self.__ecran.focus_force()
 
-        # on associe les touches du clavier aux evenements
-        self.__f.bind("<KeyPress>", self.__changer_direction, add=True)
-
         self.__f.mainloop()
 
     def __commencer(self) -> None:
@@ -72,7 +69,11 @@ class Fenetre:
 
         self.__spawn_entite()
 
+        # on associe les touches du clavier aux evenements
+        self.__f.bind("<KeyPress>", self.__changer_direction, add=True)
+
         self.continuer = True
+        self.__frame_time = 33  # en ms
 
         main_loop_thread = threading.Thread(target=self.__mainloop)
         main_loop_thread.start()
@@ -146,11 +147,11 @@ class Fenetre:
         :return:
         """
         position = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
-        self.__joueur = EntiteP.Joueur(vect_pos=position, vies=3)
+        self.joueur = EntiteP.Joueur(vect_pos=position, vies=3)
 
         image_brute = tk.PhotoImage(file="../img/joueur.png")
         image = tk.Label(self.__ecran, image=image_brute)
-        self.__joueur.set_image(image, image_brute)
+        self.joueur.set_image(image, image_brute)
 
         # Lecture du fichier json
         with open('json/stages.json') as j:
@@ -161,7 +162,7 @@ class Fenetre:
 
         for ennemi in js_ennemis["stage1"]:
             pos = vecteur2.Vect2(x=ennemi["pos_x"], y=ennemi["pos_y"])
-            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"]))
+            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"], score=2))
         self.__deplac_ennemis()
 
     def __deplac_ennemis(self) -> None:
@@ -189,10 +190,10 @@ class Fenetre:
         elif event.keysym == "Left":
             vect = vecteur2.Vect2(x=-2, y=0)
         else:
-            vect = self.__joueur.get_deplacament()
+            vect = self.joueur.get_deplacament()
         print(vect)
 
-        self.__joueur.changer_direction(vect)
+        self.joueur.changer_direction(vect)
 
     def __mainloop(self):
         """
@@ -208,12 +209,14 @@ class Fenetre:
 
         :return:
         """
-        for entity in [self.__joueur]:
+        for entity in [self.joueur]:
             distance_x = entity.get_deplacement().get_x()
             distance_y = entity.get_deplacement().get_y()
             position_x = entity.get_position().get_x()
             position_y = entity.get_position().get_y()
             entity.get_image().place(x=position_x + distance_x, y=position_y + distance_y)
+            entity.ajouter_deplacement()
+            print(entity.get_position())
 
         # reinitialise la direction a 0
-        self.__joueur.changer_direction(vect=vecteur2.Vect2())
+        self.joueur.changer_direction(vect=vecteur2.Vect2())
