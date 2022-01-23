@@ -22,7 +22,7 @@ class Fenetre:
     def __init__(self) -> None:
         # Creation de la fenetre
         self.__f = tk.Tk()
-        self.__f.title("watch yo alien")
+        self.__f.title("Les zinzins de l'espace Schengen.exe")
 
         # Initialisation des variables
         self.__nb_score = 0
@@ -42,7 +42,7 @@ class Fenetre:
         # Creation des widgets
         self.__lab_score = tk.Label(self.__f, textvariable=self.__txt_score)
         self.__lab_vies = tk.Label(self.__f, textvariable=self.__txt_vies)
-        self.__ecran = tk.Frame(self.__f, width=self.__largeur, height=self.__hauteur, bg="black")
+        self.__ecran = tk.Canvas(self.__f, width=self.__largeur, height=self.__hauteur, bg="black")
         self.__btn_commencer = ttk.Button(self.__f, text="Commencer", command=self.__commencer)
         self.__quitter = ttk.Button(self.__f, text="Quitter", command=self.__quitte)
         self.__btn_menu_princ = ttk.Button(self.__f, text="Menu principal", command=self.__menu_princ)
@@ -199,9 +199,12 @@ class Fenetre:
         for ennemi in self.__lst_entites[2:]:
             ennemi.changer_direction(self.__mvt_ennemis)
 
-        if self.__lst_entites[1].get_position().get_y() >= -20:
-            self.__lst_entites[1].changer_direction(vecteur2.Vect2(x=0, y=-2))
+        if self.__lst_entites[1].get_position().get_y() >= -16:
+            self.__lst_entites[1].changer_direction(vecteur2.Vect2(x=0, y=-10))
             self.tir_en_cours = True
+            #coord = self.__ecran.coords(self.__lst_entites[1].get_image())
+            #coll = self.__ecran.find_overlapping(coord[0], coord[1], coord[2], coord[3])
+            #print(coll)
         else:
             self.tir_en_cours = False
 
@@ -249,7 +252,7 @@ class Fenetre:
             time.sleep(self.__tps_att*0.001)
             try:
                 self.__new_tick()
-            except tkinter.TclError:
+            except tk.TclError:
                 print("Faut regler ca")
 
     def __new_tick(self):
