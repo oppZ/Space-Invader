@@ -1,8 +1,6 @@
 """
 Classe qui représente les ennemis dans le jeu
-
 Auteurs : Mateusz Wlazlowski et Tancrède Lici
-
 Date de création : 16/12/2021
 """
 
@@ -15,10 +13,8 @@ class Ennemi(Entite):
 
         self.__score = 0
 
-    def get_score(self):
+    def get_score(self) -> int:
         """
-        Retourne le score a ajouter au joueur lorsque l'ennemi est abbatu
-        :return:
-            int
+        Retourne le score a ajouter au joueur lorsque l'ennemi est abattu
         """
         return self.__score

@@ -1,8 +1,6 @@
 """
-On définit les munitions qui vont être tirés par le joueur ou par les ennemis
-
-Auteurs : Mateusz Wlazlowski et Trancrède Lici
-
+Definition des munitions tirees par le joueur ou par les ennemis
+Auteurs : Mateusz Wlazlowski et Tancrède Lici
 Date de création : 16/12/2021
 """
 
@@ -14,5 +12,8 @@ class Missile(Entite):
         Entite.__init__(self, vect_pos, vies=1)
 
     def get_coord(self) -> tuple:
+        """
+        Fonction renvoyant les coordonnees du missile
+        """
         x, y = self.get_position().get_x(), self.get_position().get_y()
         return x, y, x+5, y+15

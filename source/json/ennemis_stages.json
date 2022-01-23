@@ -2,22 +2,22 @@
   "stage1": [
     {
       "pos_x": 10,
-      "pos_y": 20,
+      "pos_y": 70,
       "type": "elite"
     },
     {
       "pos_x": 60,
-      "pos_y": 20,
+      "pos_y": 70,
       "type": "elite"
     },
     {
       "pos_x": 10,
-      "pos_y": 70,
+      "pos_y": 120,
       "type": "standard"
     },
     {
       "pos_x": 60,
-      "pos_y": 70,
+      "pos_y": 120,
       "type": "standard"
     }
   ]

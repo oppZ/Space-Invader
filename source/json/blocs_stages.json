@@ -1,0 +1,19 @@
+{
+  "stage1": [
+    {
+      "pos_x": 10,
+      "pos_y": 200,
+      "type": "bloc"
+    },
+    {
+      "pos_x": 50,
+      "pos_y": 200,
+      "type": "bloc"
+    },
+    {
+      "pos_x": 90,
+      "pos_y": 200,
+      "type": "bloc"
+    }
+  ]
+}

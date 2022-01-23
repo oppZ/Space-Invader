@@ -10,15 +10,6 @@ from source import vecteur2
 
 class Entite:
     def __init__(self, vect: vecteur2.Vect2, vies: int, image=None) -> None:
-        """
-        Initialise l'entite de base
-
-        Entrees:
-            vect: Vect2
-        Le vecteur position de l'entité
-            vies: int
-        Le nombre de vies que l'entité possède
-        """
         self.__vecteur_position = vect
         self.__vecteur_deplacement = vecteur2.Vect2()
 
@@ -31,10 +22,6 @@ class Entite:
         Fonction qui permet de déplacer une entité sur la fenêtre.
         Change les coordonées de l'entité.
         TODO: déplacer vraiment, vérifier si on dépasse pas le canvas
-
-        Entrées:
-            vect: Vect2
-        Le vecteur direction de la classe Vect2
         """
         self.__vecteur_position += vect
 
