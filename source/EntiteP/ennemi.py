@@ -10,7 +10,7 @@ from source.EntiteP.entite import Entite
 
 
 class Ennemi(Entite):
-    def __init__(self, vect_pos, vies, score):
+    def __init__(self, vect_pos, vies):
         Entite.__init__(self, vect_pos, vies)
 
         self.__score = 0

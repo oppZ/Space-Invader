@@ -1,7 +1,7 @@
 """
 Que fait ce programme: Creation de l'aspect graphique du jeu.
 Qui l'a fait: Tancrede Lici, Mateusz Wlazlowski
-Quand a-t-il realise: 16/12/2021
+Quand a-t-il ete realise: 16/12/2021
 """
 import tkinter
 import tkinter as tk
@@ -32,10 +32,11 @@ class Fenetre:
         self.__set_score()
         self.__set_vies()
         self.__tps_att = 33  # ms
-        self.__lst_ennemis = []  # Liste contenant les ennemis
+        self.__lst_entites = []  # Liste contenant les ennemis
         self.__imgs = []  # Liste contenant les images des ennemis
         self.__largeur = 400
         self.__hauteur = 550
+        self.__mvt_ennemis = vecteur2.Vect2(x=2, y=0)
 
         # Creation des widgets
         self.__lab_score = tk.Label(self.__f, textvariable=self.__txt_score)
@@ -53,7 +54,7 @@ class Fenetre:
         self.__ecran.focus_force()
 
         # on associe les touches du clavier aux evenements
-        self.__f.bind("<KeyPress>", self.__changer_direction, add=True)
+        self.__f.bind("<KeyPress>", self.__appuie_touche, add=True)
 
         self.__f.mainloop()
 
@@ -73,11 +74,7 @@ class Fenetre:
 
         self.__spawn_entite()
 
-        # on associe les touches du clavier aux evenements
-        self.__f.bind("<KeyPress>", self.__changer_direction, add=True)
-
-        self.continuer = True
-        self.__frame_time = 33  # en ms
+        self.__continuer = True
 
         main_loop_thread = threading.Thread(target=self.__mainloop)
         main_loop_thread.start()
@@ -85,15 +82,14 @@ class Fenetre:
     def __menu_princ(self) -> None:
         """
         Initialisation du menu principal
-        TODO: Supprimer les entites
         :return:
         """
         # Suppression des widgets inutiles
         self.__lab_score.grid_forget()
         self.__lab_vies.grid_forget()
         self.__btn_menu_princ.grid_forget()
-        #for entite in self.__lst_entites:
-        #    entite.rm_img()
+        for entite in self.__lst_entites:
+            entite.rm_img()
         self.__continuer = False
 
         # Ajout des widgets utiles
@@ -109,9 +105,8 @@ class Fenetre:
         # Ajout des widgets utiles
         self.__btn_rejouer.pack(side="top")
 
-    def __quitte(self):
-        self.continuer = False
-        time.sleep(self.__frame_time * 0.001)
+    def __quitte(self) -> None:
+        time.sleep(self.__tps_att * 0.001)
         self.__f.destroy()
 
     def __score(self) -> None:
@@ -152,13 +147,6 @@ class Fenetre:
         Initialisation des diverses entites
         :return:
         """
-        position = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
-        self.joueur = EntiteP.Joueur(vect_pos=position, vies=3)
-
-        image_brute = tk.PhotoImage(file="../img/joueur.png")
-        image = tk.Label(self.__ecran, image=image_brute)
-        self.joueur.set_image(image, image_brute)
-
         # Lecture du fichier json
         with open('json/stages.json') as j:
             js_ennemis = js.load(j)
@@ -166,39 +154,73 @@ class Fenetre:
         with open('json/types.json') as j:
             types = js.load(j)
 
+        self.__lst_entites = [None]*(len(js_ennemis["stage1"])+1)
+        i = 1
         for ennemi in js_ennemis["stage1"]:
             pos = vecteur2.Vect2(x=ennemi["pos_x"], y=ennemi["pos_y"])
-            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"], score=2))
-        self.__deplac_ennemis()
+            ennemi_tmp = EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"])
+            self.__creation_img(ennemi_tmp, types[ennemi["type"]]["img"])
+            self.__lst_entites[i] = ennemi_tmp
+            i += 1
+
+        pos = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
+        self.__joueur = EntiteP.Joueur(vect_pos=pos, vies=3)
+        self.__creation_img(self.__joueur, "../img/joueur.png")
+        self.__lst_entites[0] = self.__joueur
+
+    def __creation_img(self, objet: EntiteP, chemin: str) -> None:
+        """
+        Fonction rassemblant les lignes permettant la creation des images
+        :param objet:
+        :param chemin:
+        :return:
+        """
+        image_brute = tk.PhotoImage(file=chemin)
+        image = tk.Label(self.__ecran, image=image_brute)
+        objet.set_image(image, image_brute)
 
     def __deplac_ennemis(self) -> None:
         """
         Deplacement des ennemis
-        TODO: Faire en sorte que les ennemis se deplacent + detection des collisions
         :return:
         """
-        for ennemi in self.__lst_ennemis:
-            dep = vecteur2.Vect2(x=10, y=0)
-            if ennemi.get_position().get_x()+dep.get_x()+40 <= self.__hauteur:
-                ennemi.changer_direction(dep)
+        for ennemi in self.__lst_entites[1:]:
+            x = ennemi.get_position().get_x()+self.__mvt_ennemis.get_x()
+            if not (0 <= x and x+40 <= self.__largeur):
+                self.__mvt_ennemis.set_x(-self.__mvt_ennemis.get_x())
+                break
 
-    def __changer_direction(self, event) -> None:
+        for ennemi in self.__lst_entites[1:]:
+            ennemi.changer_direction(self.__mvt_ennemis)
+
+    def __appuie_touche(self, event) -> None:
         """
         Permettre au joueur de changer sa direction
         :param event:
         """
-        if event.keysym == "Up":
-            vect = vecteur2.Vect2(x=0, y=-2)
-        elif event.keysym == "Down":
-            vect = vecteur2.Vect2(x=0, y=2)
-        elif event.keysym == "Right":
-            vect = vecteur2.Vect2(x=2, y=0)
-        elif event.keysym == "Left":
-            vect = vecteur2.Vect2(x=-2, y=0)
+        if self.__continuer:
+            if event.keysym == "Up":
+                vect = vecteur2.Vect2(x=0, y=-2)
+            elif event.keysym == "Down":
+                vect = vecteur2.Vect2(x=0, y=2)
+            elif event.keysym == "Right":
+                vect = vecteur2.Vect2(x=2, y=0)
+            elif event.keysym == "Left":
+                vect = vecteur2.Vect2(x=-2, y=0)
+            elif event.keysym == "Escape":
+                self.__menu_princ()
+                vect = self.__joueur.get_deplacement()
+            elif event.keysym == "space":
+                print("espace")
+                vect = self.__joueur.get_deplacement()
+            else:
+                vect = self.__joueur.get_deplacement()
+            self.__joueur.changer_direction(vect)
         else:
-            vect = self.joueur.get_deplacament()
-
-        self.joueur.changer_direction(vect)
+            if event.keysym == "Escape":
+                self.__quitte()
+            elif event.keysym == "Return":
+                self.__commencer()
 
     def __mainloop(self):
         """
@@ -206,24 +228,25 @@ class Fenetre:
         TODO: Regler l'erreur lorsqu'on quitte la partie
         :return:
         """
-        while self.continuer:
-            time.sleep(self.__frame_time * 0.001)
-            self.__new_tick()
+        while self.__continuer:
+            time.sleep(self.__tps_att*0.001)
+            try:
+                self.__new_tick()
+            except tkinter.TclError:
+                print("Faut regler ca")
 
     def __new_tick(self):
         """
 
         :return:
         """
-        # self.__deplac_ennemis()
-        # for entity in self.__lst_entites:
-        for entity in [self.joueur]:
+        self.__deplac_ennemis()
+        for entity in self.__lst_entites:
             distance_x = entity.get_deplacement().get_x()
             distance_y = entity.get_deplacement().get_y()
             position_x = entity.get_position().get_x()
             position_y = entity.get_position().get_y()
             entity.get_image().place(x=position_x + distance_x, y=position_y + distance_y)
-            entity.ajouter_deplacement()
 
         # reinitialise la direction a 0
-        self.joueur.changer_direction(vect=vecteur2.Vect2())
+        self.__joueur.changer_direction(vect=vecteur2.Vect2())
