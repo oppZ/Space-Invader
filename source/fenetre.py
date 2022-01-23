@@ -307,3 +307,35 @@ class Fenetre:
                 self.__score()
 
         self.__i_bonus += 1
+        
+    def colision_test(self, entity1: EntiteP.Entite, entity2: EntiteP.Entite):
+        """
+        Tests de collisions entre les coordonnées des entités
+        
+        Entrée:
+            entity1: Entite
+            entity2: Entite
+        Sortie:
+            Bool
+        """
+        
+        # cote haut droit
+        if entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendu().get_x() \
+            and entity1.get_position().get_y() <= entity2.get_position().get_y() <= entity1.get_position_etendu().get_y():
+            return True
+        # cote bas droit
+        elif entity2.get_position().get_x() <= entity1.get_position().get_x() <= entity2.get_position_etendu().get_x() \
+            and entity2.get_position().get_y() <= entity1.get_position().get_y() <= entity2.get_position_etendu().get_y():
+            return True
+        # cote haut gauche
+        elif entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendu().get_x() \
+            and entity1.get_position().get_y() <= entity2.get_position_etendu().get_y() <= entity1.get_position_etendu().get_y():
+            return True
+        # cote bas gauche
+        elif entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendu().get_x() \
+                and entity1.get_position().get_y() <= entity2.get_position_etendu().get_y() <= entity1.get_position_etendu().get_y():
+            return True
+        else:
+            return False
+
+          
