@@ -1,11 +1,11 @@
 """
 Entité qui représente le joueur
-Auteurs : Mateusz Wlazlowski
+Auteurs : Mateusz Wlazlowski et Tancrède Lici
 Date de création : 16/12/2021
 """
 
-from source.EntiteP.entite import Entite
-from source.vecteur2 import Vect2
+from EntiteP.entite import Entite
+from vecteur2 import Vect2
 
 
 class Joueur(Entite):

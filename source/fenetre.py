@@ -1,6 +1,6 @@
 """
 Que fait ce programme: Creation de l'aspect graphique du jeu.
-Qui l'a fait: Tancrede Lici, Mateusz Wlazlowski
+Qui l'a fait: Mateusz Wlazlowski et Tancrède Lici
 Quand a-t-il ete realise: 16/12/2021
 """
 import tkinter as tk
@@ -18,7 +18,6 @@ class Fenetre:
     """
     Classe permettant de creer les differents menu du jeu
     """
-
     def __init__(self) -> None:
         # Creation de la fenetre
         self.__f = tk.Tk()
@@ -35,28 +34,30 @@ class Fenetre:
         self.__lst_entites = []  # Liste contenant les ennemis
         self.__lst_blocs = []  # Liste contenant les blocs
         self.__imgs = []  # Liste contenant les images des ennemis
-        self.__largeur = 400  # Largeur du canvas
-        self.__hauteur = 550  # Hauteur du canvas
+        self.__largeur = 635  # Largeur du canvas
+        self.__hauteur = 635  # Hauteur du canvas
         self.__mvt_ennemis = vecteur2.Vect2(x=2, y=0)
         self.__tir_en_cours = False
-        self.__t_bonus = randint(3000, 4000)  # Nb de tick ou le bonus apparait
+        self.__t_bonus = 0  # Nb de tick ou le bonus apparait
         self.__i_bonus = 0  # Nb de tick ayant passe
-        self.__pos_bonus = (self.__largeur + 100, -10)
+        self.__pos_bonus = (self.__largeur + 10, 10)
 
         # Creation des widgets
         self.__lab_score = tk.Label(self.__f, textvariable=self.__txt_score)
         self.__lab_vies = tk.Label(self.__f, textvariable=self.__txt_vies)
-        self.__ecran = tk.Frame(self.__f, width=self.__largeur, height=self.__hauteur, bg="black")
+        self.__frame = tk.Frame(self.__f, width=self.__largeur, height=self.__hauteur, bg="black")
         self.__btn_commencer = ttk.Button(self.__f, text="Commencer", command=self.__commencer)
         self.__quitter = ttk.Button(self.__f, text="Quitter", command=self.__quitte)
         self.__btn_menu_princ = ttk.Button(self.__f, text="Menu principal", command=self.__menu_princ)
-        self.__btn_rejouer = ttk.Button(self.__ecran, text="rejouer", command=self.__commencer)
+        self.__btn_rejouer = ttk.Button(self.__frame, text="rejouer", command=self.__commencer)
+        self.__chemin_schengen = tk.PhotoImage(file="../img/schengen.png")
+        self.__img_schengen = tk.Label(self.__frame, image=self.__chemin_schengen)
 
         # Initialisation du menu principal
         self.__menu_princ()
 
         # objet de l'instance du jeu
-        self.__ecran.focus_force()
+        self.__frame.focus_force()
 
         # on associe les touches du clavier aux evenements
         self.__f.bind("<KeyPress>", self.__appuie_touche, add=True)
@@ -70,6 +71,7 @@ class Fenetre:
         # Suppression des widgets inutiles
         self.__quitter.grid_forget()
         self.__btn_commencer.grid_forget()
+        self.__img_schengen.pack_forget()
 
         # Ajout des widgets utiles
         self.__lab_score.grid(row=0, column=0, sticky='W')
@@ -79,8 +81,9 @@ class Fenetre:
         self.__spawn_entite()
 
         self.__continuer = True
+        self.__t_bonus = randint(500, 1000)  # Nb de tick ou le bonus apparait
 
-        self.__ecran.focus_force()
+        self.__frame.focus_force()
 
         main_loop_thread = threading.Thread(target=self.__mainloop)
         main_loop_thread.start()
@@ -101,8 +104,9 @@ class Fenetre:
 
         # Ajout des widgets utiles
         self.__btn_commencer.grid(row=0, column=0, columnspan=2)
-        self.__ecran.grid(row=1, column=0, columnspan=2)
+        self.__frame.grid(row=1, column=0, columnspan=2)
         self.__quitter.grid(row=2, column=0, columnspan=2)
+        self.__img_schengen.pack()
 
     def __defaite(self) -> None:
         """
@@ -171,8 +175,8 @@ class Fenetre:
         i = 0
         for bloc in js_blocs["stage1"]:
             pos = vecteur2.Vect2(x=bloc["pos_x"], y=bloc["pos_y"])
-            bloc_tmp = EntiteP.Ennemi(vect_pos=pos, vies=types[bloc["type"]]["vie"])
-            self.__creation_img(bloc_tmp, types[bloc["type"]]["img"])
+            bloc_tmp = EntiteP.Ennemi(vect_pos=pos, vies=types["bloc"]["vie"])
+            self.__creation_img(bloc_tmp, types["bloc"]["img"])
             x, y = bloc_tmp.get_position().get_x(), bloc_tmp.get_position().get_y()
             bloc_tmp.get_image().place(x=x, y=y)
             self.__lst_blocs[i] = bloc_tmp
@@ -201,7 +205,7 @@ class Fenetre:
         :param chemin:
         """
         image_brute = tk.PhotoImage(file=chemin)
-        image = tk.Label(self.__ecran, image=image_brute)
+        image = tk.Label(self.__frame, image=image_brute)
         objet.set_image(image, image_brute)
 
     def __deplac_ennemis(self) -> None:
@@ -218,13 +222,14 @@ class Fenetre:
         for ennemi in self.__lst_entites[3:]:
             ennemi.changer_direction(self.__mvt_ennemis)
 
-        # missile
+        # Missile
         if self.__lst_entites[1].get_position().get_y() >= -16:
             self.__lst_entites[1].changer_direction(vecteur2.Vect2(x=0, y=-10))
             self.__tir_en_cours = True
         else:
             self.__tir_en_cours = False
 
+        # Bonus
         if self.__t_bonus <= self.__i_bonus:
             self.__lst_entites[2].changer_direction(vecteur2.Vect2(x=-2, y=0))
         if self.__lst_entites[2].get_position().get_x() < -50:
@@ -239,11 +244,7 @@ class Fenetre:
         """
         if self.__continuer:
             vect = self.__joueur.get_deplacement()
-            if event.keysym == "Up":
-                vect = vecteur2.Vect2(x=0, y=-2)
-            elif event.keysym == "Down":
-                vect = vecteur2.Vect2(x=0, y=2)
-            elif event.keysym == "Right":
+            if event.keysym == "Right":
                 vect = vecteur2.Vect2(x=2, y=0)
             elif event.keysym == "Left":
                 vect = vecteur2.Vect2(x=-2, y=0)
@@ -264,15 +265,12 @@ class Fenetre:
         """
         Fonction permettant au joueur de tirer
         """
-        # x, y = self.__joueur.get_position().get_x() + 17, self.__joueur.get_position().get_y() - 15
-        # pos = vecteur2.Vect2(x=x, y=y)
-        # self.__missile.set_position(pos)
         position_relative = vecteur2.Vect2(x=17, y=-15)
         position_missile = self.__joueur.get_position() + position_relative
         self.__missile.set_position(position_missile)
 
-    def __destruction(self, bloc) -> None:
-        bloc.rm_img()
+    def colision_test(self, entity1: EntiteP.Missile, entity2: EntiteP.Ennemi) -> bool:
+        pass
 
     def __mainloop(self) -> None:
         """
@@ -289,8 +287,7 @@ class Fenetre:
 
     def __new_tick(self) -> None:
         """
-
-        :return:
+        Fonction appele a chaque tick
         """
         self.__deplac_ennemis()
         for entity in self.__lst_entites:
@@ -300,8 +297,13 @@ class Fenetre:
             entity.set_position(pos=nouvelle_position)
             entity.get_image().place(x=nouvelle_position.get_x(), y=nouvelle_position.get_y())
 
-            # on reinitialise le vecteur direction a (x, y) = (0, 0)
+            # Reinitialisation du vecteur direction
             entity.changer_direction(vecteur2.Vect2())
 
+        # Appele de la fonction de test des collisions
+        for ennemi in self.__lst_entites[3:]:
+            if self.colision_test(self.__missile, ennemi):
+                ennemi.rm_img()
+                self.__score()
 
         self.__i_bonus += 1
