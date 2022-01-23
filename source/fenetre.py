@@ -92,8 +92,8 @@ class Fenetre:
         self.__lab_score.grid_forget()
         self.__lab_vies.grid_forget()
         self.__btn_menu_princ.grid_forget()
-        for entite in self.__lst_entites:
-            entite.rm_img()
+        #for entite in self.__lst_entites:
+        #    entite.rm_img()
         self.__continuer = False
 
         # Ajout des widgets utiles
@@ -153,11 +153,11 @@ class Fenetre:
         :return:
         """
         position = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
-        self.__joueur = EntiteP.Joueur(vect_pos=position, vies=3)
+        self.joueur = EntiteP.Joueur(vect_pos=position, vies=3)
 
         image_brute = tk.PhotoImage(file="../img/joueur.png")
         image = tk.Label(self.__ecran, image=image_brute)
-        self.__joueur.set_image(image, image_brute)
+        self.joueur.set_image(image, image_brute)
 
         # Lecture du fichier json
         with open('json/stages.json') as j:
@@ -168,7 +168,7 @@ class Fenetre:
 
         for ennemi in js_ennemis["stage1"]:
             pos = vecteur2.Vect2(x=ennemi["pos_x"], y=ennemi["pos_y"])
-            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"]))
+            self.__lst_ennemis.append(EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"], score=2))
         self.__deplac_ennemis()
 
     def __deplac_ennemis(self) -> None:
