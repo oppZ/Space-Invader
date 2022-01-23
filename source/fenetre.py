@@ -77,6 +77,8 @@ class Fenetre:
 
         self.__continuer = True
 
+        self.__ecran.focus_force()
+
         main_loop_thread = threading.Thread(target=self.__mainloop)
         main_loop_thread.start()
 
@@ -216,7 +218,9 @@ class Fenetre:
         Permettre au joueur de changer sa direction
         :param event:
         """
+
         if self.__continuer:
+            vect = self.__joueur.get_deplacement()
             if event.keysym == "Up":
                 vect = vecteur2.Vect2(x=0, y=-2)
             elif event.keysym == "Down":
@@ -228,18 +232,14 @@ class Fenetre:
             elif event.keysym == "Escape":
                 self.__menu_princ()
             elif event.keysym == "space" and not self.tir_en_cours:
-                print('dd')
                 self.__tirer()
                 vect = self.__joueur.get_deplacement()
-            else:
-                print("fff")
-                vect = self.__joueur.get_deplacement()
+
             self.__joueur.changer_direction(vect)
         else:
             if event.keysym == "Escape":
                 self.__quitte()
             elif event.keysym == "Return":
-                print('rr')
                 self.__commencer()
 
     def __tirer(self) -> None:
@@ -267,14 +267,12 @@ class Fenetre:
         """
         self.__deplac_ennemis()
         for entity in self.__lst_entites:
-            distance_x = entity.get_deplacement().get_x()
-            distance_y = entity.get_deplacement().get_y()
-            position_x = entity.get_position().get_x()
-            position_y = entity.get_position().get_y()
-            nouvelle_position = vecteur2.Vect2(x=position_x + distance_x, y=position_y + distance_y)
+            distance = entity.get_deplacement()
+            position = entity.get_position()
+            nouvelle_position = position + distance
             entity.set_position(pos=nouvelle_position)
-            entity.changer_direction(vecteur2.Vect2())
             entity.get_image().place(x=nouvelle_position.get_x(), y=nouvelle_position.get_y())
 
-        # reinitialise la direction a 0
-        self.__joueur.changer_direction(vect=vecteur2.Vect2())
+            # on reinitialise le vecteur direction a (x, y) = (0, 0)
+            entity.changer_direction(vecteur2.Vect2())
+
