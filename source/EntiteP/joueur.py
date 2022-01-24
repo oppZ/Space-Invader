@@ -9,5 +9,5 @@ from vecteur2 import Vect2
 
 
 class Joueur(Entite):
-    def __init__(self, vect_pos: Vect2, vies: int) -> None:
-        Entite.__init__(self, vect_pos, vies)
+    def __init__(self, vect_pos: Vect2, taille, vies: int) -> None:
+        Entite.__init__(self, vect_pos, taille, vies)

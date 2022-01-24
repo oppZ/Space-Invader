@@ -16,7 +16,7 @@ import vecteur2
 
 class Fenetre:
     """
-    Classe permettant de creer les differents menu du jeu
+    Classe permettant de creer les differents menus du jeu
     """
     def __init__(self) -> None:
         # Creation de la fenetre
@@ -165,8 +165,10 @@ class Fenetre:
         self.__lst_entites = [None] * (len(js_ennemis["stage1"]) + 3)
         i = 3
         for ennemi in js_ennemis["stage1"]:
+            # initialisation de l'ennemi
             pos = vecteur2.Vect2(x=ennemi["pos_x"], y=ennemi["pos_y"])
-            ennemi_tmp = EntiteP.Ennemi(vect_pos=pos, vies=types[ennemi["type"]]["vie"])
+            ennemi_tmp = EntiteP.Ennemi(vect_pos=pos, taille=vecteur2.Vect2(x=40, y=40), vies=types[ennemi["type"]]["vie"])
+            # on enregistre l'ennemi avec une image dans une liste d'ennemis
             self.__creation_img(ennemi_tmp, types[ennemi["type"]]["img"])
             self.__lst_entites[i] = ennemi_tmp
             i += 1
@@ -174,27 +176,32 @@ class Fenetre:
         self.__lst_blocs = [None] * len(js_blocs["stage1"])
         i = 0
         for bloc in js_blocs["stage1"]:
+            # initialisation du bloc protecteur avec l'image
             pos = vecteur2.Vect2(x=bloc["pos_x"], y=bloc["pos_y"])
-            bloc_tmp = EntiteP.Ennemi(vect_pos=pos, vies=types["bloc"]["vie"])
-            self.__creation_img(bloc_tmp, types["bloc"]["img"])
+            bloc_tmp = EntiteP.Ennemi(vect_pos=pos, taille=vecteur2.Vect2(x=40, y=40), vies=types["bloc"]["vie"])
             x, y = bloc_tmp.get_position().get_x(), bloc_tmp.get_position().get_y()
+            self.__creation_img(bloc_tmp, types["bloc"]["img"])
             bloc_tmp.get_image().place(x=x, y=y)
+            # ajout du bloc protecteur dans la liste d'objects
             self.__lst_blocs[i] = bloc_tmp
             i += 1
 
+        # initialisation du joueur
         pos = vecteur2.Vect2(x=self.__largeur / 2, y=self.__hauteur - 50)
-        self.__joueur = EntiteP.Joueur(vect_pos=pos, vies=3)
+        self.__joueur = EntiteP.Joueur(vect_pos=pos, taille=vecteur2.Vect2(x=40, y=40), vies=3)
         self.__creation_img(self.__joueur, "../img/joueur.png")
         self.__lst_entites[0] = self.__joueur
 
+        # initialisation du missile
         pos = vecteur2.Vect2(x=-100, y=0)
-        self.__missile = EntiteP.Missile(vect_pos=pos)
+        self.__missile = EntiteP.Missile(vect_pos=pos, taille=vecteur2.Vect2(x=5, y=15))
         self.__missile.changer_direction(vecteur2.Vect2(x=0, y=-5))
         self.__creation_img(self.__missile, "../img/missile.png")
         self.__lst_entites[1] = self.__missile
 
+        # initialisation de l'ennemis 'bonus' a la position 2
         pos = vecteur2.Vect2(x=self.__pos_bonus[0], y=self.__pos_bonus[1])
-        self.__bonus = EntiteP.Ennemi(vect_pos=pos, vies=3)
+        self.__bonus = EntiteP.Ennemi(vect_pos=pos, taille=vecteur2.Vect2(x=15, y=15), vies=3)
         self.__creation_img(self.__bonus, "../img/ennemi2.png")
         self.__lst_entites[2] = self.__bonus
 
@@ -223,7 +230,7 @@ class Fenetre:
             ennemi.changer_direction(self.__mvt_ennemis)
 
         # Missile
-        if self.__lst_entites[1].get_position().get_y() >= -16:
+        if self.__lst_entites[1].get_position().get_y() >= -16 and self.__lst_entites[1].get_deplacement().get_y() != -1000:
             self.__lst_entites[1].changer_direction(vecteur2.Vect2(x=0, y=-10))
             self.__tir_en_cours = True
         else:
@@ -244,12 +251,15 @@ class Fenetre:
         """
         if self.__continuer:
             vect = self.__joueur.get_deplacement()
+            # touches pour changer sa direction de deplacement
             if event.keysym == "Right":
-                vect = vecteur2.Vect2(x=2, y=0)
+                vect = vecteur2.Vect2(x=4, y=0)
             elif event.keysym == "Left":
-                vect = vecteur2.Vect2(x=-2, y=0)
+                vect = vecteur2.Vect2(x=-4, y=0)
+
             elif event.keysym == "Escape":
                 self.__menu_princ()
+            # tirer un missile
             elif event.keysym == "space" and not self.__tir_en_cours:
                 self.__tirer()
                 vect = self.__joueur.get_deplacement()
@@ -269,13 +279,9 @@ class Fenetre:
         position_missile = self.__joueur.get_position() + position_relative
         self.__missile.set_position(position_missile)
 
-    def colision_test(self, entity1: EntiteP.Missile, entity2: EntiteP.Ennemi) -> bool:
-        pass
-
     def __mainloop(self) -> None:
         """
         Boucle du jeu principale
-        TODO: Regler l'erreur lorsqu'on quitte la partie
         :return:
         """
         while self.__continuer:
@@ -283,7 +289,8 @@ class Fenetre:
             try:
                 self.__new_tick()
             except tk.TclError:
-                print("Faut regler ca")
+                # on ignore le tick si on essaye de deplacer un object qui n'existe plus
+                pass
 
     def __new_tick(self) -> None:
         """
@@ -291,27 +298,66 @@ class Fenetre:
         """
         self.__deplac_ennemis()
         for entity in self.__lst_entites:
+            # on recupere et definit tous les positions
             distance = entity.get_deplacement()
             position = entity.get_position()
+            position_etendue = entity.get_position_etendue()
             nouvelle_position = position + distance
+            # on enregistre les nouvelles positions dans les objects
             entity.set_position(pos=nouvelle_position)
+            entity.set_position_etendue(position=position_etendue + distance)
+            # on deplace les images
             entity.get_image().place(x=nouvelle_position.get_x(), y=nouvelle_position.get_y())
 
             # Reinitialisation du vecteur direction
             entity.changer_direction(vecteur2.Vect2())
 
+        ennemis_restants = []
         # Appele de la fonction de test des collisions
-        for ennemi in self.__lst_entites[3:]:
+        for i, ennemi in enumerate(self.__lst_entites[2:]):
             if self.colision_test(self.__missile, ennemi):
                 ennemi.rm_img()
+                self.__missile.changer_direction(vecteur2.Vect2(x=0, y=-1000))
                 self.__score()
+                # si on est a la position bonus
+                # defaut : peut detecter les ennemis normaux comme 'bonus'
+                if i == 2:
+                    self.__i_bonus -= 1
+            else:
+                ennemis_restants.append(ennemi)
+
+        blocs_restants = []
+        for bloc in self.__lst_blocs:
+            if self.colision_test(self.__missile, bloc):
+                bloc.rm_img()
+                self.__missile.changer_direction(vecteur2.Vect2(x=0, y=-1000))
+                self.__score()
+            else:
+                blocs_restants.append(bloc)
+
+        # on reactualise les listes avec les blocs et ennemis encore existants
+        self.__lst_blocs = blocs_restants
+        self.__lst_entites = self.__lst_entites[:2] + ennemis_restants
 
         self.__i_bonus += 1
         
-    def colision_test(self, entity1: EntiteP.Entite, entity2: EntiteP.Entite):
+    def colision_test(self, entity1, entity2):
         """
         Tests de collisions entre les coordonnées des entités
-        
+
+        Exemple du cote haut droit
+        x = entity1, + = entity2
+        x1, +1 --> position
+        x2, +2 --> position + taille (position_entendue)
+
+           +1-------
+           |       |
+        x1-|---    |
+        |  ---|----+2
+        ------x2
+
+        Grace a deux arretes de chaque entite on peut tester si on a une collision
+
         Entrée:
             entity1: Entite
             entity2: Entite
@@ -320,22 +366,23 @@ class Fenetre:
         """
         
         # cote haut droit
-        if entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendu().get_x() \
-            and entity1.get_position().get_y() <= entity2.get_position().get_y() <= entity1.get_position_etendu().get_y():
+        if entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendue().get_x() \
+            and entity1.get_position().get_y() <= entity2.get_position().get_y() <= entity1.get_position_etendue().get_y():
             return True
         # cote bas droit
-        elif entity2.get_position().get_x() <= entity1.get_position().get_x() <= entity2.get_position_etendu().get_x() \
-            and entity2.get_position().get_y() <= entity1.get_position().get_y() <= entity2.get_position_etendu().get_y():
+        elif entity2.get_position().get_x() <= entity1.get_position().get_x() <= entity2.get_position_etendue().get_x() \
+            and entity2.get_position().get_y() <= entity1.get_position().get_y() <= entity2.get_position_etendue().get_y():
             return True
         # cote haut gauche
-        elif entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendu().get_x() \
-            and entity1.get_position().get_y() <= entity2.get_position_etendu().get_y() <= entity1.get_position_etendu().get_y():
+        elif entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendue().get_x() \
+            and entity1.get_position().get_y() <= entity2.get_position_etendue().get_y() <= entity1.get_position_etendue().get_y():
             return True
         # cote bas gauche
-        elif entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendu().get_x() \
-                and entity1.get_position().get_y() <= entity2.get_position_etendu().get_y() <= entity1.get_position_etendu().get_y():
+        elif entity1.get_position().get_x() <= entity2.get_position().get_x() <= entity1.get_position_etendue().get_x() \
+                and entity1.get_position().get_y() <= entity2.get_position_etendue().get_y() <= entity1.get_position_etendue().get_y():
             return True
+        # pas de colision
         else:
-            return False
+             return False
 
           
