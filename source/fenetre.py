@@ -3,9 +3,10 @@ Que fait ce programme: Creation de l'aspect graphique du jeu.
 Qui l'a fait: Mateusz Wlazlowski et Tancrède Lici
 Quand a-t-il ete realise: 16/12/2021
 """
+import tkinter
 import tkinter as tk
 import json as js
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import time
 import threading
 from random import randint
@@ -53,6 +54,13 @@ class Fenetre:
         self.__chemin_schengen = tk.PhotoImage(file="../img/schengen.png")
         self.__img_schengen = tk.Label(self.__frame, image=self.__chemin_schengen)
 
+        # Creation d'un menu a propos
+        menubar = tkinter.Menu(self.__f)
+        filemenu = tkinter.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="A propos", command=self.apropos)
+        menubar.add_cascade(label="A propos", menu=filemenu)
+        self.__f.config(menu=menubar)
+
         # Initialisation du menu principal
         self.__menu_princ()
 
@@ -63,6 +71,18 @@ class Fenetre:
         self.__f.bind("<KeyPress>", self.__appuie_touche, add=True)
 
         self.__f.mainloop()
+
+    def apropos(self):
+        # message a propos en utilisant une pile
+        message = []
+        message.append("LICI Tancrède & WLAZLOWSKI Mateusz")
+        message.append("Ce Space Invadeur a été créé par :")
+        message_complet = message[-1] + '\n'
+        message.pop()
+        message_complet += message[-1]
+        message.pop()
+
+        tkinter.messagebox.showinfo(title="A propos", message=message_complet)
 
     def __commencer(self) -> None:
         """
